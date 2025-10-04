@@ -1,0 +1,95 @@
+name: Spring Boot CI with gradle
+
+on:
+  push:
+    branches: [ "main", "develop", "feat/**", "feature/**" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # 1) 코드 체크아웃 (PR일 때도 head 브랜치를 확실히 체크아웃)
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+
+      # 2) JDK 17 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # 3) Gradle 프로젝트 루트 자동 탐지 (settings.gradle/build.gradle을 찾아서 사용)
+      - name: Detect Gradle project dir
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "HEAD ref: ${GITHUB_HEAD_REF:-}  REF: $GITHUB_REF  SHA: $GITHUB_SHA"
+          echo "---- repo tree (top) ----"; ls -la
+          # settings.* 우선, 없으면 build.* 탐색
+          DIR=""
+          for pattern in "settings.gradle" "settings.gradle.kts" "build.gradle" "build.gradle.kts"; do
+            hit="$(find . -maxdepth 6 -type f -name "$pattern" | head -n 1 || true)"
+            if [ -n "$hit" ]; then
+              DIR="$(dirname "$hit")"
+              break
+            fi
+          done
+          if [ -z "$DIR" ]; then
+            echo "No Gradle build files found anywhere under repo."
+            exit 1
+          fi
+          DIR="${DIR#./}"
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
+          echo "Detected Gradle project dir: $DIR"
+          echo "---- contents of detected dir ----"; ls -la "$DIR"
+
+      # 4) Secret에서 application.yml 생성 (탐지 디렉터리 기준)
+      - name: Make application.yml from secret
+        working-directory: ${{ steps.detect.outputs.dir }}
+        shell: bash
+        run: |
+          mkdir -p ./src/main/resources
+          cat > ./src/main/resources/application.yml <<'EOF'
+          ${{ secrets.APPLICATION_YML }}
+          EOF
+          sed -i 's/\r$//' ./src/main/resources/application.yml
+
+      # 5) Gradle 빌드/테스트 실행
+      #    - 래퍼 인식이 안 되더라도 실행되게 gradle-version 명시
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: 8.10.2
+          build-root-directory: ${{ steps.detect.outputs.dir }}
+          arguments: clean build --no-daemon
+
+      # 6) 테스트 리포트 업로드 (항상)
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-reports
+          path: |
+            ${{ steps.detect.outputs.dir }}/**/build/test-results/test
+            ${{ steps.detect.outputs.dir }}/**/build/reports/tests/test
+          if-no-files-found: warn
+
+
+
