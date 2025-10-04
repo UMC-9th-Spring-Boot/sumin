@@ -1,0 +1,244 @@
+
+create table event_notice
+(
+    id         bigint auto_increment
+        primary key,
+    created_at datetime(6)  not null,
+    updated_at datetime(6)  not null,
+    content    varchar(255) not null,
+    title      varchar(150) not null
+);
+
+create table food_category
+(
+    id            bigint auto_increment
+        primary key,
+    created_at    datetime(6) not null,
+    updated_at    datetime(6) not null,
+    category_name varchar(10) not null
+);
+
+create table inquiry_notice
+(
+    id         bigint auto_increment
+        primary key,
+    created_at datetime(6)  not null,
+    updated_at datetime(6)  not null,
+    content    varchar(255) not null,
+    title      varchar(150) not null
+);
+
+create table region
+(
+    id          bigint auto_increment
+        primary key,
+    created_at  datetime(6) not null,
+    updated_at  datetime(6) not null,
+    region_name varchar(50) not null
+);
+
+create table restaurant
+(
+    id                  bigint auto_increment
+        primary key,
+    created_at          datetime(6) not null,
+    updated_at          datetime(6) not null,
+    owner_number        bigint      null,
+    rating              double      not null,
+    restaurant_category varchar(50) not null,
+    restaurant_name     varchar(50) not null,
+    region_id           bigint      null,
+    constraint FKa42f32i7rvo56cb6laomg565s
+        foreign key (region_id) references region (id)
+);
+
+create table mission
+(
+    id            bigint auto_increment
+        primary key,
+    created_at    datetime(6) not null,
+    updated_at    datetime(6) not null,
+    deadline      date        not null,
+    mission_name  varchar(50) not null,
+    mission_point int         not null,
+    restaurant_id bigint      null,
+    constraint FKgae6qenatvwyoxwh163hm1sp
+        foreign key (restaurant_id) references restaurant (id)
+);
+
+create table review_notice
+(
+    id         bigint auto_increment
+        primary key,
+    created_at datetime(6)  not null,
+    updated_at datetime(6)  not null,
+    content    varchar(255) not null,
+    title      varchar(150) not null
+);
+
+create table term
+(
+    id         bigint auto_increment
+        primary key,
+    created_at datetime(6)                                                 not null,
+    updated_at datetime(6)                                                 not null,
+    term_name  enum ('AGE', 'LOCATION', 'MARKETING', 'PRIVACY', 'SERVICE') not null
+);
+
+create table user
+(
+    id                        bigint auto_increment
+        primary key,
+    address                   varchar(125)                               not null,
+    birth                     date                                       not null,
+    gender                    enum ('FEMALE', 'MALE', 'NONE')            not null,
+    is_active                 bit                                        not null,
+    name                      varchar(10)                                not null,
+    phone_num                 varchar(15)                                not null,
+    phone_verification_status enum ('UNVERIFIED', 'VERIFIED')            not null,
+    point                     int                                        not null,
+    social_type               enum ('APPLE', 'GOOGLE', 'KAKAO', 'NAVER') null
+);
+
+create table inquiry
+(
+    id              bigint auto_increment
+        primary key,
+    inquiry_content varchar(255)                                            not null,
+    inquiry_title   varchar(150)                                            not null,
+    inquiry_type    enum ('ACCOUNT', 'EVENT', 'GENERAL', 'OTHER', 'REVIEW') not null,
+    user_id         bigint                                                  not null,
+    constraint FKff1ylwlwujmed7diqs8ykf6pv
+        foreign key (user_id) references user (id)
+);
+
+create table inquiry_photo
+(
+    id                bigint auto_increment
+        primary key,
+    inquiry_photo_url varchar(255) null,
+    inquiry_id        bigint       not null,
+    constraint FK9m88uysxflyu2jdoehj473bs
+        foreign key (inquiry_id) references inquiry (id)
+);
+
+create table inquiry_reply
+(
+    id              bigint auto_increment
+        primary key,
+    inquiry_content varchar(255) not null,
+    inquiry_id      bigint       not null,
+    constraint FKlswrro8h5dy5y2ba8q9useih7
+        foreign key (inquiry_id) references inquiry (id)
+);
+
+create table notice
+(
+    id                bigint auto_increment
+        primary key,
+    created_at        datetime(6) not null,
+    updated_at        datetime(6) not null,
+    is_confirmed      bit         not null,
+    event_notice_id   bigint      not null,
+    inquiry_notice_id bigint      not null,
+    review_notice_id  bigint      not null,
+    user_id           bigint      not null,
+    constraint UK4k97mbcsgk6w6dh6xjuma9n29
+        unique (event_notice_id),
+    constraint UK76earbdvxb80rb530qcq2cpbx
+        unique (inquiry_notice_id),
+    constraint UKg0b3vrsrje34nvekb1l3cbc7o
+        unique (review_notice_id),
+    constraint FK6vmstvjnqtftlrk5yobu8xk4j
+        foreign key (review_notice_id) references review_notice (id),
+    constraint FKbhhoinw4ffgwdn2pps37nmqqs
+        foreign key (event_notice_id) references event_notice (id),
+    constraint FKcvf4mh5se36inrxn7xlh2brfv
+        foreign key (user_id) references user (id),
+    constraint FKns7lmqww3hp3tf5xd03o6ev1
+        foreign key (inquiry_notice_id) references inquiry_notice (id)
+);
+
+create table review
+(
+    id             bigint auto_increment
+        primary key,
+    created_at     datetime(6)  not null,
+    updated_at     datetime(6)  not null,
+    rating         double       not null,
+    review_content varchar(255) not null,
+    restaurant_id  bigint       not null,
+    user_id        bigint       not null,
+    constraint FK70ry7cuti298yxet366rynxch
+        foreign key (restaurant_id) references restaurant (id),
+    constraint FKiyf57dy48lyiftdrf7y87rnxi
+        foreign key (user_id) references user (id)
+);
+
+create table reply
+(
+    id            bigint auto_increment
+        primary key,
+    created_at    datetime(6)  not null,
+    updated_at    datetime(6)  not null,
+    reply_content varchar(255) null,
+    review_id     bigint       not null,
+    constraint UK4uh4vegunuxj6p9ilmeyy6gm2
+        unique (review_id),
+    constraint FKd5ckwt38d4ibe84wlfc3o8jw8
+        foreign key (review_id) references review (id)
+);
+
+create table review_photo
+(
+    id         bigint auto_increment
+        primary key,
+    created_at datetime(6)  not null,
+    updated_at datetime(6)  not null,
+    photo_url  varchar(255) null,
+    review_id  bigint       not null,
+    constraint FK80ti8nek4uv8vn4vjhpre6mwg
+        foreign key (review_id) references review (id)
+);
+
+create table user_mission
+(
+    id           bigint auto_increment
+        primary key,
+    is_completed bit    not null,
+    mission_id   bigint not null,
+    user_id      bigint not null,
+    constraint FKdlc6c9h0rifeykrviy3fgmygv
+        foreign key (mission_id) references mission (id),
+    constraint FKfsmo8ipks83kcuqtky39hxyvc
+        foreign key (user_id) references user (id)
+);
+
+create table user_preferrence_food
+(
+    id         bigint auto_increment
+        primary key,
+    created_at datetime(6) not null,
+    updated_at datetime(6) not null,
+    food_id    bigint      not null,
+    user_id    bigint      not null,
+    constraint FK9oxejgu6kw58dbywwjiee06w4
+        foreign key (user_id) references user (id),
+    constraint FKld36amxnmtmkupbhf7kcaeaec
+        foreign key (food_id) references food_category (id)
+);
+
+create table user_term
+(
+    id         bigint auto_increment
+        primary key,
+    created_at datetime(6) not null,
+    updated_at datetime(6) not null,
+    term_id    bigint      not null,
+    user_id    bigint      not null,
+    constraint FK1q9gmsebfsty95vmb262jers
+        foreign key (term_id) references term (id),
+    constraint FK3wbl3i7dlc7ctj7ris8vtbhd1
+        foreign key (user_id) references user (id)
+);
+
