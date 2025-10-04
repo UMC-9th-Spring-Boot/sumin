@@ -2,40 +2,54 @@ name: Spring Boot CI with gradle
 
 on:
   push:
-    branches: [ "main", "develop", "feat/**", "feature/**" ]
+    branches: [ "main", "develop", "feat/**", "feature/**" ]  # 이 브랜치들에서 푸시될 때만
+    paths:                                                     # 아래 파일/경로가 변경된 커밋일 때만 실행
+      - "build.gradle*"
+      - "settings.gradle*"
+      - "gradlew"
+      - "gradle/**"
+      - "src/**"
+      - ".github/workflows/**"  # CI 파일이 바뀌어도 실행
   pull_request:
-    branches: [ "main", "develop" ]
-  workflow_dispatch:
+    branches: [ "main", "develop" ]     # 대상(base)이 main/develop인 PR에 대해
+    paths:                               # PR 변경에 Gradle/소스가 포함되어 있을 때만 실행
+      - "build.gradle*"
+      - "settings.gradle*"
+      - "gradlew"
+      - "gradle/**"
+      - "src/**"
+      - ".github/workflows/**"
+  workflow_dispatch:  # Actions 탭에서 수동 실행 버튼 제공
 
-# 최소 권한
+# 최소 권한(리포 콘텐츠 읽기만 허용)
 permissions:
   contents: read
 
-# 같은 브랜치 중복 실행 시 이전 실행 취소
+# 같은 브랜치에서 실행이 겹치면 이전 실행을 취소하여 큐 정리/빌드 낭비 방지
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-test:
-    # 레포에 Gradle 빌드 파일이 없으면 아예 실행 안 함(불필요한 실패 방지)
-    if: ${{ hashFiles('**/build.gradle*', '**/settings.gradle*') != '' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: ubuntu-latest        # GitHub 호스티드 우분투 최신 러너
+    timeout-minutes: 20           # 무한 대기 방지(20분 초과 시 실패 처리)
 
     steps:
-      # 1) 코드 체크아웃
+      # 1) 현재 커밋을 러너로 체크아웃
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) JDK 17 설치(Temurin)
+      # 2) JDK 17 설치(Temurin 배포판)
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      # 3) Secret로 application.yml 생성(멀티라인 안전)
+      # 3) GitHub Secret으로 application.yml 생성
+      #    - 레포에 민감정보를 커밋하지 않고 CI에서만 주입
+      #    - heredoc으로 멀티라인 안전 처리 + CRLF 정리
       - name: Make application.yml from secret
         shell: bash
         run: |
@@ -45,15 +59,15 @@ jobs:
           EOF
           sed -i 's/\r$//' ./src/main/resources/application.yml
 
-      # 4) Gradle 액션으로 빌드/테스트
-      #    - 레포의 Gradle Wrapper를 자동 감지하여 실행
-      #    - 캐시(래퍼/디스트리뷰션/의존성) 자동 관리
+      # 4) Gradle 래퍼로 빌드 & 테스트
+      #    - gradle/gradle-build-action이 래퍼/디스트리뷰션/의존성 캐시를 자동 관리
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v3
         with:
           arguments: clean build --no-daemon
 
-      # 5) 테스트 리포트 업로드(항상)
+      # 5) 테스트 리포트 업로드(항상 수행)
+      #    - 빌드 실패해도 HTML/XML 리포트를 Actions > Artifacts에서 확인 가능
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,7 +77,7 @@ jobs:
             **/build/test-results/test
             **/build/reports/tests/test
 
-      # 6) 실패 시 간단 요약 출력
+      # 6) 실패 시 콘솔에 간단 요약 출력(어떤 테스트가 실패했는지 빠르게 확인)
       - name: Print failed tests (if any)
         if: failure()
         shell: bash
