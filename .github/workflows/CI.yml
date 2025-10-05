@@ -45,16 +45,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # 3) GitHub Secret으로 application.yml 생성
-      - name: Make application.yml from secret
-        shell: bash
-        run: |
-          mkdir -p ./src/main/resources
-          cat > ./src/main/resources/application.yml <<'EOF'
-          ${{ secrets.APPLICATION_YML }}
-          EOF
-          sed -i 's/\r$//' ./src/main/resources/application.yml
-
       # 4) gradlew 실행 권한
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
