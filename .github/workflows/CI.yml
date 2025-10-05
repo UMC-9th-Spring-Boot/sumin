@@ -45,13 +45,18 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      # 3) Gradle 캐시(빌드 속도 개선)
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       # 4) gradlew 실행 권한
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
       # 5) 빌드(테스트 포함)
+      #    테스트는 src/test/resources/application.yml(H2) 설정으로 자동 실행됨
       - name: Build with Gradle
-        run: ./gradlew clean build
+        run: ./gradlew clean build --no-daemon
 
       # 6) 테스트 리포트 업로드
       - name: Upload Test Reports
