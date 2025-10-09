@@ -1,6 +1,6 @@
-package com.example.umc9th.domain.user.entity;
+package com.example.umc9th.domain.member.entity;
 
-import com.example.umc9th.domain.user.entity.mapping.UserFood;
+import com.example.umc9th.domain.member.entity.mapping.MemberFood;
 import com.example.umc9th.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,5 +23,5 @@ public class Food extends BaseEntity {
     private String categoryName; // 음식 카테고리
 
     @OneToMany(mappedBy = "food", cascade = CascadeType.REMOVE)
-    private List<UserFood> userFoodList = new ArrayList<>();
+    private List<MemberFood> memberFoodList = new ArrayList<>();
 }

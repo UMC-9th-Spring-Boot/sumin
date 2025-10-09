@@ -1,6 +1,6 @@
 package com.example.umc9th.domain.notification.entity;
 
-import com.example.umc9th.domain.user.entity.User;
+import com.example.umc9th.domain.member.entity.Member;
 import com.example.umc9th.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,8 +20,8 @@ public class Notice extends BaseEntity {
     private boolean isConfirmed;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_notice_id", nullable = false)

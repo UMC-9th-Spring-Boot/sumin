@@ -1,11 +1,11 @@
-package com.example.umc9th.domain.user.entity;
+package com.example.umc9th.domain.member.entity;
 
-import com.example.umc9th.domain.mission.entity.mapping.UserMission;
-import com.example.umc9th.domain.user.entity.mapping.UserFood;
-import com.example.umc9th.domain.user.entity.mapping.UserTerm;
-import com.example.umc9th.domain.user.enums.Gender;
-import com.example.umc9th.domain.user.enums.PhoneVerificationStatus;
-import com.example.umc9th.domain.user.enums.SocialType;
+import com.example.umc9th.domain.mission.entity.mapping.MemberMission;
+import com.example.umc9th.domain.member.entity.mapping.MemberFood;
+import com.example.umc9th.domain.member.entity.mapping.MemberTerm;
+import com.example.umc9th.domain.member.enums.Gender;
+import com.example.umc9th.domain.member.enums.PhoneVerificationStatus;
+import com.example.umc9th.domain.member.enums.SocialType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,11 +18,11 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-@Table(name = "user")
-public class User {
+@Table(name = "member")
+public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column(name = "name", length = 10, nullable = false)
     private String name;
@@ -41,6 +41,7 @@ public class User {
     @Column(name = "address", length = 125, nullable = false)
     private String address;
 
+
     @Column(name = "point", nullable = false)
     @Builder.Default
     private Integer point = 0;
@@ -48,6 +49,9 @@ public class User {
     @Column(name = "social_type")
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
+
+    @Column(name = "email", length = 50)
+    private String email;
 
     @Column(name = "phone_verification_status", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -58,12 +62,12 @@ public class User {
     @Builder.Default
     private Boolean isActive = true;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private List<UserFood> userFoodList = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
+    private List<MemberFood> memberFoodList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private List<UserTerm> userTermList = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
+    private List<MemberTerm> memberTermList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private List<UserMission> userMissionList = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
+    private List<MemberMission> memberMissionList = new ArrayList<>();
 }

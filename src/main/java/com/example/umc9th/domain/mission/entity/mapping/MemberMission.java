@@ -1,7 +1,7 @@
 package com.example.umc9th.domain.mission.entity.mapping;
 
 import com.example.umc9th.domain.mission.entity.Mission;
-import com.example.umc9th.domain.user.entity.User;
+import com.example.umc9th.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,8 +10,8 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access =  AccessLevel.PRIVATE)
 @Getter
-@Table(name = "user_mission")
-public class UserMission {
+@Table(name = "member_mission")
+public class MemberMission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,8 +20,8 @@ public class UserMission {
     private boolean isCompleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mission_id", nullable = false)
