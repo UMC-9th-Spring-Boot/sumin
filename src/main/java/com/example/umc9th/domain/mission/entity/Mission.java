@@ -1,6 +1,6 @@
 package com.example.umc9th.domain.mission.entity;
 
-import com.example.umc9th.domain.mission.entity.mapping.UserMission;
+import com.example.umc9th.domain.mission.entity.mapping.MemberMission;
 import com.example.umc9th.domain.restaurant.entity.Restaurant;
 import com.example.umc9th.global.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -35,5 +35,5 @@ public class Mission extends BaseEntity {
     private Restaurant restaurant;
 
     @OneToMany(mappedBy = "mission")
-    private List<UserMission> userMissionList = new ArrayList<>();
+    private List<MemberMission> memberMissionList = new ArrayList<>();
 }

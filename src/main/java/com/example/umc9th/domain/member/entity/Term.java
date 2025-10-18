@@ -1,7 +1,7 @@
-package com.example.umc9th.domain.user.entity;
+package com.example.umc9th.domain.member.entity;
 
-import com.example.umc9th.domain.user.entity.mapping.UserTerm;
-import com.example.umc9th.domain.user.enums.TermName;
+import com.example.umc9th.domain.member.entity.mapping.MemberTerm;
+import com.example.umc9th.domain.member.enums.TermName;
 import com.example.umc9th.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,5 +25,5 @@ public class Term extends BaseEntity {
     private TermName name;
 
     @OneToMany(mappedBy = "term", cascade = CascadeType.REMOVE)
-    private List<UserTerm> userTermList = new ArrayList<>();
+    private List<MemberTerm> memberTermList = new ArrayList<>();
 }

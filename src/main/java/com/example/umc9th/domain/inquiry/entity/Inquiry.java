@@ -1,7 +1,7 @@
 package com.example.umc9th.domain.inquiry.entity;
 
 import com.example.umc9th.domain.inquiry.enums.InquiryType;
-import com.example.umc9th.domain.user.entity.User;
+import com.example.umc9th.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,8 +30,8 @@ public class Inquiry {
     private InquiryType inquiryType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @OneToMany(mappedBy = "inquiry", cascade = CascadeType.REMOVE)
     private List<InquiryPhoto> photos = new ArrayList<>();
