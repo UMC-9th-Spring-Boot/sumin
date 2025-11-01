@@ -1,12 +1,13 @@
 package com.example.umc9th.domain.review.controller;
 
+import com.example.umc9th.domain.review.converter.ReviewConverter;
+import com.example.umc9th.domain.review.dto.res.ReviewResDTO;
 import com.example.umc9th.domain.review.entity.Review;
-import com.example.umc9th.domain.review.service.ReviewQueryService;
+import com.example.umc9th.domain.review.service.query.ReviewQueryServiceImpl;
+import com.example.umc9th.global.apiPayload.ApiResponse;
+import com.example.umc9th.global.apiPayload.code.GeneralSuccessCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,18 +15,24 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/reviews")
 public class ReviewController {
-    private final ReviewQueryService reviewQueryService;
+    private final ReviewQueryServiceImpl reviewQueryService;
+
 
     // /api/reviews/me?memberId=7
     // /api/reviews/me?memberId=7&type=restaurant&query=반이학생마라탕마라반
     // /api/reviews/me?memberId=7&type=rating&query=4
     // /api/reviews/me?memberId=7&type=both&query=반이학생마라탕마라반&4
     @GetMapping("/me")
-    public List<Review> myReviews(
+    public ApiResponse<ReviewResDTO.MyReviews> myReviews(
             @RequestParam Long memberId,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String query
     ) {
-        return reviewQueryService.searchMyReviews(memberId, type, query);
+        List<Review> list = reviewQueryService.searchMyReviews(memberId, type, query);
+        ReviewResDTO.MyReviews dto = ReviewConverter.toMyReviews(list);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, dto);
     }
+
+
+
 }
