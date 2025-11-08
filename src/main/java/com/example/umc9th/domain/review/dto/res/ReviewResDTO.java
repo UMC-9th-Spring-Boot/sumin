@@ -23,4 +23,15 @@ public class ReviewResDTO {
         private List<MyReview> reviews;
         private Integer totalCount;
     }
+
+    // 가게에 리뷰 작성 응답 DTO
+    @Builder
+    public record CreateReview(
+            Long reviewId,
+            Long restaurantId,
+            Long memberId,
+            String reviewContent,
+            Double rating,
+            LocalDateTime createdAt
+    ){}
 }
