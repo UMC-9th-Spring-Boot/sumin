@@ -6,6 +6,7 @@ import com.example.umc9th.domain.member.entity.mapping.MemberTerm;
 import com.example.umc9th.domain.member.enums.Gender;
 import com.example.umc9th.domain.member.enums.PhoneVerificationStatus;
 import com.example.umc9th.domain.member.enums.SocialType;
+import com.example.umc9th.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Table(name = "member")
-public class Member {
+public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,6 +41,9 @@ public class Member {
 
     @Column(name = "address", length = 125, nullable = false)
     private String address;
+
+    @Column(name = "detail_address", length = 125, nullable = false)
+    private String detailAddress;
 
 
     @Column(name = "point", nullable = false)
@@ -63,6 +67,7 @@ public class Member {
     private Boolean isActive = true;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
+    @Builder.Default
     private List<MemberFood> memberFoodList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
