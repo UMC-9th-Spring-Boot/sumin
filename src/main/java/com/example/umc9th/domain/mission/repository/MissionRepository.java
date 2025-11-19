@@ -1,7 +1,9 @@
 package com.example.umc9th.domain.mission.repository;
 
 import com.example.umc9th.domain.mission.entity.Mission;
+import com.example.umc9th.domain.restaurant.entity.Restaurant;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,5 +29,10 @@ public interface MissionRepository extends JpaRepository<Mission, Long> {
             @Param("regionId") Long regionId,
             @Param("today") LocalDate today,
             Pageable pageable
+    );
+
+    Page<Mission> findAllByRestaurant(
+            Restaurant restaurant,
+            PageRequest pageRequest
     );
 }
