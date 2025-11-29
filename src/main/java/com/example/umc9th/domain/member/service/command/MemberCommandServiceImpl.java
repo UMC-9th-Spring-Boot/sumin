@@ -11,8 +11,10 @@ import com.example.umc9th.domain.member.exception.code.FoodErrorCode;
 import com.example.umc9th.domain.member.repository.FoodRepository;
 import com.example.umc9th.domain.member.repository.MemberFoodRepository;
 import com.example.umc9th.domain.member.repository.MemberRepository;
+import com.example.umc9th.global.auth.enums.Role;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,19 +29,26 @@ public class MemberCommandServiceImpl implements MemberCommandService{
     private final MemberFoodRepository memberFoodRepository;
     private final FoodRepository foodRepository;
 
+    // Password Encoder
+    private final PasswordEncoder passwordEncoder;
+
     // 회원가입
     @Override
     @Transactional
     public MemberResDTO.JoinDTO signup(
             MemberReqDTO.JoinDTO dto
     ){
+
+        // 솔트된 비밀번호 생성
+        String salt = passwordEncoder.encode(dto.password());
+
         // 사용자 생성
-        Member member = MemberConverter.toMember(dto);
+        Member member = MemberConverter.toMember(dto, salt, Role.ROLE_USER);
         // DB 적용
         memberRepository.save(member);
 
         // 선호 음식 존재 여부 확인
-        if (dto.preferCategory().size() > 1){
+        if (dto.preferCategory() != null && !dto.preferCategory().isEmpty()) {
             List<MemberFood> memberFoodList = new ArrayList<>();
 
             // 선호 음식 ID별 조회
