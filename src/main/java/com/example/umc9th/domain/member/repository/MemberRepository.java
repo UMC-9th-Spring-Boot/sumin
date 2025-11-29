@@ -10,4 +10,6 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
     // 활성 상태인 회원 단건 조회
     Optional<Member> findByIdAndIsActiveTrue(Long id);
 
+    Optional<Member> findByEmail(String email);
+
 }
